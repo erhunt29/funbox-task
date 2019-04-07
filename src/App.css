@@ -1,0 +1,84 @@
+body {
+    margin: 0;
+}
+
+.app-container {
+    display: flex;
+    width: 1100px;
+    margin: 0 auto;
+    padding-top: 10px;
+}
+
+.app-form {
+
+}
+
+.form-input {
+    width: 220px;
+    height: 40px;
+    padding: 0 10px;
+    font-family: Arial,sans-serif;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.form-button {
+    padding: 0 10px;
+    height: 40px;
+    font-family: Arial,sans-serif;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.form-button:hover {
+    background-color: gray;
+}
+
+.map {
+    margin-left: auto;
+    width: 700px;
+    height: 500px;
+}
+
+.points {
+    padding: 0
+}
+
+.point {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    font-family: Arial,sans-serif;
+    font-size: 16px;
+    width: 315px;
+}
+
+.remove-point {
+    width: 30px;
+    height: 30px;
+    border-radius: 100%;
+    position: relative;
+    cursor: pointer;
+}
+
+.remove-point:hover {
+    background-color: gray;
+}
+
+.remove-point::before,.remove-point::after {
+    position: absolute;
+    left: calc(50% - 8px);
+    content: '';
+    width: 16px;
+    height: 2px;
+    background-color: #000;
+}
+
+.remove-point::before {
+    transform: rotate(45deg);
+}
+.remove-point::after {
+    transform: rotate(-45deg);
+}
+
+
