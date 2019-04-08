@@ -40,7 +40,7 @@ body {
     height: 500px;
 }
 
-.points {
+ul {
     padding: 0
 }
 
@@ -48,10 +48,14 @@ body {
     margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
-    font-family: Arial,sans-serif;
-    font-size: 16px;
     width: 315px;
     cursor: pointer;
+}
+
+.point-text {
+    width: 250px;
+    font-family: Arial,sans-serif;
+    font-size: 16px;
 }
 
 .remove-point {

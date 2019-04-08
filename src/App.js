@@ -15,11 +15,8 @@ class App extends Component {
 
     handleLoad = () => {
         window.ymaps.ready(() => {
-            this.localMap = new window.ymaps.Map('map', {center: [55.734876, 37.59308], zoom: 10,},);
-
+            this.localMap = new window.ymaps.Map('map', {center: [55.734876, 37.59308], zoom: 10,},);  // Созлаем карту
         });
-
-
     };
 
     handleInput = (ev) => {
@@ -28,56 +25,50 @@ class App extends Component {
         })
     };
 
+    handleRouteUpdate = () => { // Срабатывает при создании и изменении маршрута
+        this.multiRoute.getWayPoints().each((point, key)=>{  // На каждую точку добавляем балун
+            window.ymaps.geoObject.addon.balloon.get(point);
+            point.properties.set({
+                balloonContent:`Точка маршрута ${point.properties._data.index + 1}`,
+            });
+        });
+
+        this.multiRoute.events.add("boundschange", this.handleBoundsChange);
+
+        const newReferencePoints =  this.multiRoute.model.properties._data.waypoints; // Получаем точки маршрута ввиде массива
+
+        const  newOrder = newReferencePoints.map((point, i) => i);
+        this.setState({referencePoints: newReferencePoints, order: newOrder, routeIsCreated: true})
+    };
+
+    handleBoundsChange = () => {  // Автоматически устанавливает границы карты так, чтобы маршрут был виден целиком
+        const {referencePoints} = this.state;
+
+        if(referencePoints.length!== 0) {
+            this.localMap.setBounds( this.multiRoute.getBounds(), {
+                checkZoomRange: true
+            });
+        }
+    };
+
     createRoute = () => {
         const {inputAddress} = this.state;
-        this.multiRoute = new window.ymaps.multiRouter.MultiRoute({
-                referencePoints: [inputAddress]
-                ,
+        this.multiRoute = new window.ymaps.multiRouter.MultiRoute({  // Создаем мультимаршрут
+                referencePoints: [inputAddress],
                 params: {
-                    routingMode: 'auto',
-                    reverseGeocoding: true
+                    routingMode: 'auto',   // Выбор способа передвижения
+                    reverseGeocoding: true // Позволяет задать новую точку координатами
                 }
             }
             ,{
                 boundsAutoApply: true,
-                balloonLayout: this.balloonLayout,
             });
 
-        this.multiRoute.editor.start();
+        this.multiRoute.editor.start(); // Включаем режим редактрирования для возможности перетаскивания точек
 
-        this.multiRoute.model.events.add('requestsuccess', () => {  // Срабатывает при изменении марщрута
+        this.multiRoute.model.events.add('requestsuccess', this.handleRouteUpdate);
 
-            this.multiRoute.getWayPoints().each((point, key)=>{
-                console.log(point.properties._data);
-                // console.log(point.properties._data.address);
-                //debugger
-                window.ymaps.geoObject.addon.balloon.get(point);
-                point.properties.set({
-                    balloonContent:`Точка маршрута ${point.properties._data.index+1}`,
-                });
-            });
-
-
-            this.multiRoute.events.add("boundschange", () => {
-
-              const {referencePoints} = this.state;
-
-               if(referencePoints.length!== 0) {
-                   this.localMap.setBounds( this.multiRoute.getBounds(), {
-                       checkZoomRange: true
-                   });
-               }
-            });
-
-            const newReferencePoints =  this.multiRoute.model.properties._data.waypoints;
-
-
-            let  newOrder = newReferencePoints.map((point, i) => i);
-            this.setState({referencePoints: newReferencePoints, order: newOrder, routeIsCreated: true})
-
-        });
-
-        this.localMap.geoObjects.add(this.multiRoute);
+        this.localMap.geoObjects.add(this.multiRoute); // Добавляем маршрут на карту
     };
 
     addPoint = (ev) => {
@@ -89,9 +80,9 @@ class App extends Component {
         }
 
         else {
-          const coordinatesOfReferencePoints = referencePoints.map( point => point.coordinates.reverse());
+          const coordinatesOfReferencePoints = referencePoints.map( point => point.coordinates.reverse()); // Меняем порядок координат, т.к. вводимые и получаемые координаты не совпадают
           coordinatesOfReferencePoints.push(inputAddress);
-          this.multiRoute.model.setReferencePoints(coordinatesOfReferencePoints)
+          this.multiRoute.model.setReferencePoints(coordinatesOfReferencePoints) // Обновляем маршрут
         }
 
         this.setState({inputAddress: '',})
@@ -99,21 +90,19 @@ class App extends Component {
 
     removePoint = deletePoint => () => {
         const {referencePoints} = this.state;
-        const newReferencePoints =  referencePoints.filter(point => point.coordinates!== deletePoint.coordinates);
+        const newReferencePoints =  referencePoints.filter(point => point.coordinates!== deletePoint.coordinates); // Проверка по координатам
         const newOrder = newReferencePoints.map( (point, i) => i);
         this.setState({referencePoints: newReferencePoints, order: newOrder}, this.updateRoute)
-    }
+    };
 
-    updateRoute = () => {
-        const {referencePoints} = this.state;
-        const coordinatesOfReferencePoints = referencePoints.map( point => point.coordinates.reverse());
+    updateRoute = (referencePoints = this.state.referencePoints) => {
+        const coordinatesOfReferencePoints = referencePoints.map( point => point.coordinates.reverse()); // Меняем порядок координат, т.к. вводимые и получаемые координаты не совпадают
         this.multiRoute.model.setReferencePoints(coordinatesOfReferencePoints)
     };
 
     render() {
         const {referencePoints, inputAddress, order} = this.state;
-        console.log(order);
-        console.log(referencePoints);
+
         return (
           <div className='app-container'>
               <div>
@@ -132,8 +121,8 @@ class App extends Component {
                       removePoint={this.removePoint}
                       order={order}
                       referencePoints={referencePoints}
-                      onChange={(referencePoints, order) => {
-                          this.setState({ referencePoints, order }, this.updateRoute);
+                      onChange={(referencePoints) => {
+                          this.updateRoute(referencePoints);
                       }}
                   >
                   </PointsList>
