@@ -14,7 +14,7 @@ const PointsList = ({ referencePoints,order, onChange, removePoint }) => {
         <li key={uniqueId()} data-id={position} className='point'>
             <div>
                 Точка маршрута {i+1}: <br/>
-                {referencePoints[+position].name}
+                {referencePoints[+position].name + ' ' + referencePoints[+position].description}
             </div>
             <button className='remove-point' onClick={removePoint(referencePoints[+position])}/>
         </li>
@@ -47,7 +47,8 @@ const PointsList = ({ referencePoints,order, onChange, removePoint }) => {
                 // @param {Object} sortable The sortable instance.
                 // @param {Event} evt The event object.
                 onChange={(order, sortable, evt) => {
-                    onChange(order);
+                    const newReferencePoints = order.map(position => referencePoints[+position]);
+                    onChange(newReferencePoints, order);
                 }}
             >
                 {listItems}

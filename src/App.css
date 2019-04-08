@@ -51,6 +51,7 @@ body {
     font-family: Arial,sans-serif;
     font-size: 16px;
     width: 315px;
+    cursor: pointer;
 }
 
 .remove-point {
@@ -64,7 +65,9 @@ body {
 .remove-point:hover {
     background-color: gray;
 }
-
+.remove-point:focus {
+    outline: none;
+}
 .remove-point::before,.remove-point::after {
     position: absolute;
     left: calc(50% - 8px);

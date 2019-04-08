@@ -45,14 +45,15 @@ class App extends Component {
 
         this.multiRoute.editor.start();
 
-        this.multiRoute.model.events.add('requestsuccess', () => {
-
-            window.waypoints=this.multiRoute.getWayPoints()
+        this.multiRoute.model.events.add('requestsuccess', () => {  // Срабатывает при изменении марщрута
 
             this.multiRoute.getWayPoints().each((point, key)=>{
+                console.log(point.properties._data);
+                // console.log(point.properties._data.address);
+                //debugger
                 window.ymaps.geoObject.addon.balloon.get(point);
                 point.properties.set({
-                    balloonContent:`Точка маршрута ${key+1}`,
+                    balloonContent:`Точка маршрута ${point.properties._data.index+1}`,
                 });
             });
 
@@ -69,15 +70,9 @@ class App extends Component {
             });
 
             const newReferencePoints =  this.multiRoute.model.properties._data.waypoints;
-            const {order} = this.state;
 
-            let  newOrder;
-            if(order.length!==0 && newReferencePoints.length!== order.length) {
-                newOrder = order.concat([order.length])
-            }
-            else {
-                newOrder = newReferencePoints.map((point, i) => i);
-            }
+
+            let  newOrder = newReferencePoints.map((point, i) => i);
             this.setState({referencePoints: newReferencePoints, order: newOrder, routeIsCreated: true})
 
         });
@@ -137,8 +132,8 @@ class App extends Component {
                       removePoint={this.removePoint}
                       order={order}
                       referencePoints={referencePoints}
-                      onChange={(order) => {
-                          this.setState({ order });
+                      onChange={(referencePoints, order) => {
+                          this.setState({ referencePoints, order }, this.updateRoute);
                       }}
                   >
                   </PointsList>
